@@ -27,7 +27,7 @@ $ .\env\scripts\activate
 #### Note
 
 - Before running the project make sure you are in project directory where manage.py file present if not then enter
-  >cd social_network
+  >cd social-networking
 
 ## Installation 📦
 
