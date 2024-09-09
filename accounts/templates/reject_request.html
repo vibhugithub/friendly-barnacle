@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Social Networking</title>
+    <nav><a href="{% url 'home' %}">Back to Home</a></nav>
+</head>
+<body>
+    <h2>Rejected Friend Requests</h2>
+    <ul>
+        {% for request in rejected_requests %}
+        <li>
+            To User: {{ request.to_user.name }} Rejected on {{ request.created_at }}
+            <br>          
+        </li>
+        {% empty %}
+        <li>No rejected friend requests</li>
+        {% endfor %}
+    </ul>
+    
+</body>
+</html>

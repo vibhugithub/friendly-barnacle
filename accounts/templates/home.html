@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Networking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        p {
+            font-size: 1.2rem;
+        }
+
+        /* Flexbox container for search and nav */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        /* Search bar styles */
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-container input[type="text"] {
+            padding: 8px;
+            font-size: 1rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 200px;
+        }
+
+        .search-container button {
+            padding: 8px;
+            border: none;
+            background-color: #4b0082;
+            color: white;
+            cursor: pointer;
+            margin-left: 5px;
+            border-radius: 4px;
+        }
+
+        .search-container button:hover {
+            background-color: #6a0dad;
+        }
+
+        /* Nav styling */
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #4b0082;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        /* Search result button */
+
+        .user-details {
+            display: flex;
+            align-items: center;
+            /*justify-content:space-between;*/
+        }
+        
+        .user-details p {
+            font-size: 1rem;
+            margin: 0 0 10px 0; /* Add space between the text and button */
+        }
+        
+        .user-details form {
+            margin-top: 10px; /* Optional, to ensure button is spaced nicely from the text */
+        }
+        
+        .user-details button {
+            padding: 8px 12px;
+            background-color: #4b0082;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px;
+            margin-left: 10px
+
+            
+        }
+        
+        .user-details button:hover {
+            background-color: #6a0dad;
+        }
+        
+    </style>
+</head>
+<body>
+    
+    <h2><a href="{% url 'home' %}" >Welcome, {{ user.name }}!</a></h2>
+
+    <!-- Search and navigation bar -->
+    <div class="top-bar">
+        <!-- Search bar -->
+        <div class="search-container">
+            <form method="GET" action="{% url 'search' %}">
+                <input type="text" name="search" id="search-input" placeholder="Search by name or email" >
+                <button type="submit">Search</button>
+            </form>
+        </div>
+            
+
+        <!-- Navigation bar -->
+        <nav>
+            <ul>
+                <li><a href="{% url 'friends' %}">Following</a></li>
+                <li><a href="{% url 'pending_requests' %}">Requests</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+    <!-- Error for valid name, not an email -->
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    
+
+
+    <!-- Search results -->
+    <ul>
+        {% if request.GET.search %}<!--template checks if there is a search term-->
+        {% for entry in page_obj %}
+            <li>
+                <div class="user-details">
+                <strong>{{ entry.user.name }}</strong> ({{ entry.user.email }})
+                <br>
+                {% if entry.is_friend %}
+                    <!-- User is already a friend -->
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <button type="submit">Send Message</button>
+                    </form>
+                {% elif entry.has_received_request %}
+                    <!-- User has received a request from the logged-in user -->
+                    <form method="POST" action="{% url 'accept_request' entry.user.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Accept Request</button>
+                    </form>
+                {% else %}
+                    <!-- No request sent/received -->
+                    <form method="POST" action="{% url 'send_request' entry.user.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Send Request</button>
+                    </form>
+                {% endif %}
+                </div>
+            </li>
+        {% empty %}
+            <li>No users found</li>
+        {% endfor %}
+        {% else %}
+            <!-- Display nothing or some default text when no search has been made yet -->
+        {% endif %}
+    </ul>
+    <!-- Pagination controls -->
+    {% if page_obj %}
+        {% include 'pagination.html' %}
+    {% endif %}
+    
+</body>
+</html>
